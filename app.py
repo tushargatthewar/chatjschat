@@ -20,8 +20,8 @@ Session(app)  # Initialize session
 socketio = SocketIO(app)
 
 # MongoDB Setup - Using MongoDB Atlas cluster URI
-username = quote_plus("shubham")
-password = quote_plus("shubham@123")
+username = quote_plus(os.getenv("MONGODB_USERNAME"))
+password = quote_plus(os.getenv("MONGODB_PASSWORD"))
 client = MongoClient(f"mongodb+srv://{username}:{password}@cluster0.ldylk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 db = client['chat_ap']
 users_collection = db['users']
