@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        /* Reset some default styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1,
+        h2 {
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #6a1b9a;
+        }
+
+        h2 {
+            color: #264653;
+        }
+
+        ul {
+            list-style: none;
+            margin-top: 10px;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        form {
+            display: inline;
+        }
+
+        button {
+            background-color: #6a1b9a;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #6a1b9a;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 80%;
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #264653;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #2e0b43;
+        }
+
+        /* Container styling */
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* Section styling */
+        .section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Welcome, {{ username }}</h1>
+
+        <div class="section">
+            <h2>Your Rooms</h2>
+            <ul>
+                {% for room in rooms %}
+                <li>
+                    Room ID: {{ room.room_id }}
+                    <form action="{{ url_for('join_room_post') }}" method="POST">
+                        <input type="hidden" name="room_id" value="{{ room.room_id }}">
+                        <button type="submit">Join Room</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Create New Room</h2>
+            <form action="{{ url_for('create_room') }}" method="POST">
+                <input type="text" name="room_name" placeholder="Enter Room Name" required>
+                <button type="submit">Create Room</button>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>Join Room by Room ID</h2>
+            <form action="{{ url_for('join_room_post') }}" method="POST">
+                <input type="text" name="room_id" placeholder="Enter Room ID" required>
+                <button type="submit">Join Room</button>
+            </form>
+        </div>
+
+        <a href="/logout">Logout</a>
+    </div>
+</body>
+
+</html>

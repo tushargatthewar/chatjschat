@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Chat Room: {{ room_id }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5e5e5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #messages {
+            border-radius: 10px;
+            background-color: #fff;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message {
+            margin: 10px 0;
+            display: flex;
+        }
+
+        .message p {
+            border-radius: 15px;
+            padding: 10px 15px;
+            max-width: 70%;
+        }
+
+        .message .username {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .message .text {
+            background-color: #dcf8c6;
+            /* Light green for user messages */
+            color: #333;
+        }
+
+        .message .text.other {
+            background-color: #fff;
+            /* White for other messages */
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+        }
+
+        #message {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Chat Room: {{ room_id }}</h2>
+    <div id="messages">
+        {% for message in messages %}
+        <div class="message">
+            <p class="username">{{ message.username }}:</p>
+            <p class="text{% if message.username == username %} user{% else %} other{% endif %}">{{ message.message }}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <form id="chat-form">
+        <input type="text" id="message" placeholder="Type your message..." required>
+        <button type="submit">Send</button>
+    </form>
+
+    <a href="/logout">Logout</a>
+
+   <script>
+    // Get the session ID from the server-side variable
+    const session_id = "{{ session_id }}";
+    const socket = io();
+
+    // Join the chat room and pass the session ID for verification
+    socket.emit('join', { room_id: "{{ room_id }}", session_id: session_id });
+
+    // Listen for the initial messages when joining the room
+    socket.on('initial_messages', function (data) {
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML = ''; // Clear existing messages
+        data.messages.forEach(message => {
+            messagesDiv.innerHTML += `
+                <div class="message">
+                    <p class="username">${message.username}:</p>
+                    <p class="text ${message.username === "{{ username }}" ? 'user' : 'other'}">${message.message}</p>
+                </div>`;
+        });
+    });
+
+    // Handle the chat form submission to send messages
+    document.getElementById('chat-form').onsubmit = function (e) {
+        e.preventDefault();
+        const message = document.getElementById('message').value;
+
+        // Emit the send_message event with the session ID
+        socket.emit('send_message', {
+            room_id: "{{ room_id }}",
+            message: message,
+            session_id: session_id
+        });
+
+        document.getElementById('message').value = ''; // Clear the message input
+    };
+
+    // Listen for incoming messages in real-time
+    socket.on('receive_message', function (data) {
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML += `
+            <div class="message">
+                <p class="username">${data.username}:</p>
+                <p class="text ${data.username === "{{ username }}" ? 'user' : 'other'}">${data.message}</p>
+            </div>`;
+
+        // Auto-scroll to the latest message
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+</script>
+
+</body>
+
+</html>
