@@ -121,17 +121,17 @@
     <a href="/logout">Logout</a>
 
    <script>
-    // Get the session ID from the server-side variable
+    
     const session_id = "{{ session_id }}";
     const socket = io();
 
-    // Join the chat room and pass the session ID for verification
+   
     socket.emit('join', { room_id: "{{ room_id }}", session_id: session_id });
 
-    // Listen for the initial messages when joining the room
+ 
     socket.on('initial_messages', function (data) {
         const messagesDiv = document.getElementById('messages');
-        messagesDiv.innerHTML = ''; // Clear existing messages
+        messagesDiv.innerHTML = ''; 
         data.messages.forEach(message => {
             messagesDiv.innerHTML += `
                 <div class="message">
@@ -141,22 +141,21 @@
         });
     });
 
-    // Handle the chat form submission to send messages
     document.getElementById('chat-form').onsubmit = function (e) {
         e.preventDefault();
         const message = document.getElementById('message').value;
 
-        // Emit the send_message event with the session ID
+      
         socket.emit('send_message', {
             room_id: "{{ room_id }}",
             message: message,
             session_id: session_id
         });
 
-        document.getElementById('message').value = ''; // Clear the message input
+        document.getElementById('message').value = ''; 
     };
 
-    // Listen for incoming messages in real-time
+  
     socket.on('receive_message', function (data) {
         const messagesDiv = document.getElementById('messages');
         messagesDiv.innerHTML += `
@@ -165,7 +164,7 @@
                 <p class="text ${data.username === "{{ username }}" ? 'user' : 'other'}">${data.message}</p>
             </div>`;
 
-        // Auto-scroll to the latest message
+  
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
 </script>
